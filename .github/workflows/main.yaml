@@ -17,7 +17,7 @@ jobs:
       - name: ☕ Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
       - name: 🔨 Build with Maven
@@ -39,13 +39,13 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-         name: war-file
+          name: war-file
       
       - name: 🚀 Deploy to DEV
         env:
-           URL: ${{ secrets.TOMCAT_HOST_DEV }}
-           USER: ${{ secrets.TOMCAT_USER_DEV }}
-           PASS: ${{ secrets.TOMCAT_PASSWORD_DEV }}
+          URL:  ${{ secrets.TOMCAT_MANAGER_DEV }}   # e.g. http://IP:8080/manager/text
+          USER: ${{ secrets.TOMCAT_USER_DEV }}
+          PASS: ${{ secrets.TOMCAT_PASSWORD_DEV }}
         run: |
           WAR_FILE=$(ls *.war | head -n 1)
           echo "Deploying $WAR_FILE to DEV ($URL)"
@@ -54,7 +54,7 @@ jobs:
           curl -v -u "$USER:$PASS" "$URL/list"
 
           echo "📌 Deploying WAR file..."
-          curl -v -u "$USER:$PASS" --fail --show-error -T "$WAR_FILE" \
+          curl -v -u "$USER:$PASS" --fail --show-error --upload-file "$WAR_FILE" \
             "$URL/deploy?path=/train-ticket-reservation&update=true"
             
   deploy-PRE_PROD:
@@ -64,13 +64,13 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-         name: war-file
+          name: war-file
               
       - name: 🚀 Deploy to PRE_PROD
         env:
-           URL: ${{ secrets.TOMCAT_HOST_PRE_PROD }}
-           USER: ${{ secrets.TOMCAT_USER_PRE_PROD }}
-           PASS: ${{ secrets.TOMCAT_PASSWORD_PRE_PROD }}
+          URL:  ${{ secrets.TOMCAT_MANAGER_PRE_PROD }}   # http://IP:8080/manager/text
+          USER: ${{ secrets.TOMCAT_USER_PRE_PROD }}
+          PASS: ${{ secrets.TOMCAT_PASSWORD_PRE_PROD }}
         run: |
           WAR_FILE=$(ls *.war | head -n 1)
           echo "Deploying $WAR_FILE to PRE_PROD ($URL)"
@@ -79,8 +79,8 @@ jobs:
           curl -v -u "$USER:$PASS" "$URL/list"
 
           echo "📌 Deploying WAR file..."
-          curl -v -u "$USER:$PASS" --fail --show-error -T "$WAR_FILE" \
-          "$URL/deploy?path=/train-ticket-reservation&update=true"
+          curl -v -u "$USER:$PASS" --fail --show-error --upload-file "$WAR_FILE" \
+            "$URL/deploy?path=/train-ticket-reservation&update=true"
             
   deploy-TEST:
     needs: build
@@ -89,11 +89,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-         name: war-file
+          name: war-file
             
       - name: 🚀 Deploy to TEST
         env:
-          URL: ${{ secrets.TOMCAT_HOST_TEST }}
+          URL:  ${{ secrets.TOMCAT_MANAGER_TEST }}   # http://IP:8080/manager/text
           USER: ${{ secrets.TOMCAT_USER_TEST }}
           PASS: ${{ secrets.TOMCAT_PASSWORD_TEST }}
         run: |
@@ -104,7 +104,7 @@ jobs:
           curl -v -u "$USER:$PASS" "$URL/list"
 
           echo "📌 Deploying WAR file..."
-          curl -v -u "$USER:$PASS" --fail --show-error -T "$WAR_FILE" \
+          curl -v -u "$USER:$PASS" --fail --show-error --upload-file "$WAR_FILE" \
             "$URL/deploy?path=/train-ticket-reservation&update=true"
 
   deploy-PROD:
@@ -114,11 +114,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-         name: war-file
+          name: war-file
 
       - name: 🚀 Deploy to PROD
         env:
-          URL: ${{ secrets.TOMCAT_HOST_PROD }}
+          URL:  ${{ secrets.TOMCAT_MANAGER_PROD }}   # http://IP:8080/manager/text
           USER: ${{ secrets.TOMCAT_USER_PROD }}
           PASS: ${{ secrets.TOMCAT_PASSWORD_PROD }}
         run: |
@@ -129,5 +129,5 @@ jobs:
           curl -v -u "$USER:$PASS" "$URL/list"
 
           echo "📌 Deploying WAR file..."
-          curl -v -u "$USER:$PASS" --fail --show-error -T "$WAR_FILE" \
+          curl -v -u "$USER:$PASS" --fail --show-error --upload-file "$WAR_FILE" \
             "$URL/deploy?path=/train-ticket-reservation&update=true"
