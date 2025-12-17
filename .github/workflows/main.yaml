@@ -10,55 +10,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout source code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Setup Java 17
       - name: Setup JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: '17'
 
-      # Maven Validate
       - name: Maven validate
         run: mvn validate -Dproject.build.sourceEncoding=UTF-8
 
-      # Maven Compile
       - name: Maven compile
         run: mvn compile -Dproject.build.sourceEncoding=UTF-8
 
-      # Maven Test
       - name: Maven test
         run: mvn test -Dproject.build.sourceEncoding=UTF-8
 
-      # SonarQube Code Quality
       - name: Sonar Code Quality
-        continue-on-error: true
         run: |
-         mvn clean verify sonar:sonar \
-         -Dsonar.projectKey=train-ticket-reservation \
-         -Dsonar.host.url=${{ secrets.SONAR_HOST }} \
-         -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          mvn clean verify sonar:sonar \
+            -Dsonar.projectKey=train-ticket-reservation \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dproject.build.sourceEncoding=UTF-8
 
-      # Maven Package
       - name: Maven package
         run: mvn package -DskipTests -Dproject.build.sourceEncoding=UTF-8
 
-      # Configure Maven for Nexus
       - name: Configure Maven for Nexus
         run: |
           mkdir -p ~/.m2
           echo "${{ secrets.MAVEN_SETTINGS }}" > ~/.m2/settings.xml
 
-      # Upload artifact to Nexus
       - name: Upload Artifact to Nexus
         run: mvn deploy -DskipTests=true
 
-      # Deploy WAR to Tomcat
       - name: Deploy to Tomcat
         run: |
           curl -v -u ${{ secrets.TOMCAT_USER }}:${{ secrets.TOMCAT_PASSWORD }} \
           -T target/TrainBook-1.0.0-SNAPSHOT.war \
           "http://${{ secrets.TOMCAT_HOST }}:8080/manager/text/deploy?path=/vcube140&update=true"
+
