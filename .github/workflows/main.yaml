@@ -38,11 +38,10 @@ jobs:
 
       - name: Maven package
         run: mvn package -DskipTests -Dproject.build.sourceEncoding=UTF-8
-
       - name: Configure Maven for Nexus
         run: |
-          mkdir -p ~/.m2
-          echo "${{ secrets.MAVEN_SETTINGS }}" > ~/.m2/settings.xml
+         mkdir -p ~/.m2
+         printf "%s" "${{ secrets.MAVEN_SETTINGS }}" > ~/.m2/settings.xml
 
       - name: Upload Artifact to Nexus
         run: mvn deploy -DskipTests=true
