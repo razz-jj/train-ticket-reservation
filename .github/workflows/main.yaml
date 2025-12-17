@@ -38,7 +38,7 @@ jobs:
         continue-on-error: true
         run: |
          mvn clean verify sonar:sonar \
-         -Dsonar.projectKey=train-ticket \
+         -Dsonar.projectKey=train-ticket-reservation \
          -Dsonar.host.url=${{ secrets.SONAR_HOST }} \
          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
